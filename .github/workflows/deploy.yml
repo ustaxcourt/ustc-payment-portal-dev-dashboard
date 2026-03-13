@@ -1,0 +1,43 @@
+name: Deploy Main (Amplify Gen 2)
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  NODE_VERSION: '24'
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  AMPLIFY_APP_ID: ${{ secrets.AMPLIFY_APP_ID }}
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run tsc
+      - run: npm run build
+      - run: npm run test:e2e
+
+      - name: Configure AWS credentials (OIDC)
+        if: ${{ success() }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy main
+        if: ${{ success() }}
+        run: |
+          npx ampx pipeline-deploy \
+            --branch "main" \
+            --app-id "${{ env.AMPLIFY_APP_ID }}"

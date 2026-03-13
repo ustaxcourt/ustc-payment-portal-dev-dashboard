@@ -1,0 +1,101 @@
+name: PR Preview (Amplify Gen 2)
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+      - release/**
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  NODE_VERSION: '24'
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  AMPLIFY_APP_ID: ${{ secrets.AMPLIFY_APP_ID }}
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pr-preview-${{ github.head_ref || github.ref_name }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run tsc
+
+      - name: Build
+        run: npm run build
+
+      - name: Cache Cypress
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            cypress-${{ runner.os }}-
+
+      - name: E2E
+        run: npm run test:e2e
+
+      # ----- Deploy preview only if all checks passed -----
+
+      - name: Configure AWS credentials (OIDC)
+        if: ${{ success() && github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sanitize branch for Amplify
+        if: ${{ success() && github.event.pull_request.head.repo.full_name == github.repository }}
+        id: sanitize
+        shell: bash
+        run: |
+          RAW="${{ github.head_ref }}"
+          SAFE="${RAW//\//-}"
+          SAFE="${SAFE// /-}"
+          echo "branch=$SAFE" >> "$GITHUB_OUTPUT"
+
+      # The branches created in Amplify must match the branch name of the PR,
+      # so we need to ensure that the branch exists before deploying the preview.
+      - name: Ensure Amplify branch exists
+        if: ${{ success() && github.event.pull_request.head.repo.full_name == github.repository }}
+        run: |
+          BRANCH="${{ steps.sanitize.outputs.branch }}"
+          set -euo pipefail
+          if aws amplify get-branch --app-id "${{ env.AMPLIFY_APP_ID }}" --branch-name "$BRANCH" >/dev/null 2>&1; then
+            echo "Amplify branch '$BRANCH' already exists."
+          else
+            echo "Creating Amplify branch '$BRANCH'..."
+            aws amplify create-branch \
+              --app-id "${{ env.AMPLIFY_APP_ID }}" \
+              --branch-name "$BRANCH" \
+              --no-enable-auto-build
+          fi
+
+      - name: Deploy PR preview (Amplify Gen 2)
+        if: ${{ success() && github.event.pull_request.head.repo.full_name == github.repository }}
+        run: |
+          echo "Deploying PR preview for branch: ${{ steps.sanitize.outputs.branch }}"
+          npx ampx pipeline-deploy \
+            --branch "${{ steps.sanitize.outputs.branch }}" \
+            --app-id "${{ env.AMPLIFY_APP_ID }}"
