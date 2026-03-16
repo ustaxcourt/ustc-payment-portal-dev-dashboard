@@ -126,7 +126,7 @@ The migration (`db/migrations/20260305195503_init_db.ts`) creates:
 
 The web client calls these endpoints on the dashboard-api:
 
-#### `GET /api/transactions/:status`
+#### `GET /transactions/:status`
 
 Fetch transactions by status.
 
@@ -151,7 +151,7 @@ Fetch transactions by status.
 }
 ```
 
-#### `GET /api/transaction-payment-status`
+#### `GET /transaction-payment-status`
 
 Fetch aggregate status counts.
 
@@ -164,7 +164,7 @@ Fetch aggregate status counts.
 }
 ```
 
-**Note**: The API accepts lowercase path parameters (e.g., `/api/transactions/success`) but internally converts them to uppercase (`SUCCESS`) for database queries.
+**Note**: The API accepts lowercase path parameters (e.g., `/transactions/success`) but internally converts them to uppercase (`SUCCESS`) for database queries.
 
 ---
 
@@ -244,10 +244,10 @@ docker compose down -v
 curl http://localhost:3001/health
 
 # Transaction data endpoint
-curl http://localhost:3001/api/transactions/success
+curl http://localhost:3001/transactions/success
 
 # Status counts
-curl http://localhost:3001/api/transaction-payment-status
+curl http://localhost:3001/transaction-payment-status
 ```
 
 ### Override Service Ports

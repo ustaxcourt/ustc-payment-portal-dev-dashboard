@@ -2,7 +2,7 @@ export { }
 
 describe('transactions loading and empty states', () => {
   beforeEach(() => {
-    cy.intercept('GET', '**/api/transaction-payment-status', {
+    cy.intercept('GET', '**/transaction-payment-status', {
       statusCode: 200,
       body: {
         SUCCESS: 1,
@@ -13,7 +13,7 @@ describe('transactions loading and empty states', () => {
   })
 
   it('handles delayed DataGrid response and renders rows after completion', () => {
-    cy.intercept('GET', '**/api/transactions/success', {
+    cy.intercept('GET', '**/transactions/success', {
       statusCode: 200,
       delay: 1200,
       body: {
@@ -49,7 +49,7 @@ describe('transactions loading and empty states', () => {
   })
 
   it('shows empty grid state when API returns zero rows', () => {
-    cy.intercept('GET', '**/api/transactions/failed', {
+    cy.intercept('GET', '**/transactions/failed', {
       statusCode: 200,
       body: {
         data: [],

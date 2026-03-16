@@ -2,7 +2,7 @@ export { }
 
 describe('transactions errors', () => {
   beforeEach(() => {
-    cy.intercept('GET', '**/api/transaction-payment-status', {
+    cy.intercept('GET', '**/transaction-payment-status', {
       statusCode: 200,
       body: {
         SUCCESS: 1,
@@ -13,7 +13,7 @@ describe('transactions errors', () => {
   })
 
   it('shows an error alert when transactions request fails', () => {
-    cy.intercept('GET', '**/api/transactions/success', {
+    cy.intercept('GET', '**/transactions/success', {
       statusCode: 500,
       body: { message: 'Internal server error' },
     }).as('getSuccessTransactions')

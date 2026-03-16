@@ -18,7 +18,7 @@ const transactionByStatus: Record<PaymentStatus, { feeName: string; agencyTracki
 }
 
 function mockTransactionsApi(): void {
-  cy.intercept('GET', '**/api/transaction-payment-status', {
+  cy.intercept('GET', '**/transaction-payment-status', {
     statusCode: 200,
     body: {
       SUCCESS: 1,
@@ -27,7 +27,7 @@ function mockTransactionsApi(): void {
     },
   }).as('getStatusCounts')
 
-  cy.intercept('GET', '**/api/transactions/*', (req) => {
+  cy.intercept('GET', '**/transactions/*', (req) => {
     const status = req.url.split('/').pop()?.toUpperCase() as PaymentStatus
     const transaction = transactionByStatus[status]
 

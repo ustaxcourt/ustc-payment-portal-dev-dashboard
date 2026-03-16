@@ -20,7 +20,7 @@ function assertTabCount(tabLabel: string, count: number): void {
 
 describe('transactions tab counts', () => {
   beforeEach(() => {
-    cy.intercept('GET', '**/api/transaction-payment-status', {
+    cy.intercept('GET', '**/transaction-payment-status', {
       statusCode: 200,
       body: {
         SUCCESS: 9,
@@ -29,7 +29,7 @@ describe('transactions tab counts', () => {
       },
     }).as('getStatusCounts')
 
-    cy.intercept('GET', '**/api/transactions/*', (req) => {
+    cy.intercept('GET', '**/transactions/*', (req) => {
       const status = req.url.split('/').pop()?.toUpperCase() as PaymentStatus
       const total = totalsByStatus[status]
       const feeName = labelByStatus[status]
