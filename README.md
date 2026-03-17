@@ -34,7 +34,7 @@ npm run dev
 ```
 
 **Prerequisites**:
-- Dashboard API running on `localhost:3001` (or set `VITE_DASHBOARD_API_BASE_URL`)
+- Dashboard API running on `localhost:8080` (or set `VITE_DASHBOARD_API_BASE_URL`)
 
 ---
 
@@ -96,10 +96,10 @@ cp .env.example .env
 ### Build-Time via Vite
 
 ```env
-VITE_DASHBOARD_API_BASE_URL=http://localhost:3001
+VITE_DASHBOARD_API_BASE_URL=http://localhost:8080
 ```
 
-If not set, defaults to `http://localhost:3001`. Vite only exposes variables prefixed with `VITE_` to the browser bundle.
+If not set, defaults to `http://localhost:8080`. Vite only exposes variables prefixed with `VITE_` to the browser bundle.
 
 ## Testing
 
@@ -148,17 +148,17 @@ If the UI loads but no data appears:
 1. Verify API is healthy:
 
 ```bash
-curl http://localhost:3001/health
+curl http://localhost:8080/health
 ```
 
 2. Verify transaction endpoint:
 
 ```bash
-curl http://localhost:3001/api/transactions/success
+curl http://localhost:8080/api/transactions/success
 ```
 
 3. Verify status counts endpoint:
 
 ```bash
-curl http://localhost:3001/api/transaction-payment-status
+curl http://localhost:8080/api/transaction-payment-status
 ```

@@ -24,8 +24,8 @@ DB_PORT=5433 npm run seed:run
 ### Access the Application
 
 - **Web Client**: http://localhost:5173
-- **Dashboard API**: http://localhost:3001
-- **Health Check**: `curl http://localhost:3001/health`
+- **Dashboard API**: http://localhost:8080
+- **Health Check**: `curl http://localhost:8080/health`
 
 ---
 
@@ -34,7 +34,7 @@ DB_PORT=5433 npm run seed:run
 The local transaction dashboard stack consists of:
 
 1. **PostgreSQL Database** (host port 5433, container port 5432) – Stores transactions
-2. **Dashboard API** (port 3001) – Express API serving transaction data
+2. **Dashboard API** (port 8080) – Express API serving transaction data
 3. **Web Client** (port 5173) – React UI displaying transactions by status
 
 These services are orchestrated by `docker-compose.yml` and coordinate through migrations, seeds, and environment configuration.
@@ -81,7 +81,7 @@ These services are orchestrated by `docker-compose.yml` and coordinate through m
 - **Dependencies**: Depends on `dashboard-api` healthy
 - **Environment**:
   ```env
-  VITE_DASHBOARD_API_BASE_URL=http://localhost:3001
+  VITE_DASHBOARD_API_BASE_URL=http://localhost:8080
   ```
 
 ---
@@ -241,13 +241,13 @@ docker compose down -v
 
 ```bash
 # API health check
-curl http://localhost:3001/health
+curl http://localhost:8080/health
 
 # Transaction data endpoint
-curl http://localhost:3001/api/transactions/success
+curl http://localhost:8080/api/transactions/success
 
 # Status counts
-curl http://localhost:3001/api/transaction-payment-status
+curl http://localhost:8080/api/transaction-payment-status
 ```
 
 ### Override Service Ports
@@ -318,7 +318,7 @@ cp web-client/.env.example web-client/.env
 
 ```env
 # web-client/.env
-VITE_DASHBOARD_API_BASE_URL=http://localhost:3001
+VITE_DASHBOARD_API_BASE_URL=http://localhost:8080
 ```
 
 In Docker Compose and CI, environment variables are injected directly — no `.env` file is needed.
@@ -374,7 +374,7 @@ docker compose logs dashboard-api
 Verify `VITE_DASHBOARD_API_BASE_URL` is set correctly. For Docker Compose:
 
 ```bash
-VITE_DASHBOARD_API_BASE_URL=http://localhost:3001 npm run dev --prefix web-client
+VITE_DASHBOARD_API_BASE_URL=http://localhost:8080 npm run dev --prefix web-client
 ```
 
 ### Reset Everything
