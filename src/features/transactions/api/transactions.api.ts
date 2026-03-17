@@ -63,10 +63,16 @@ export async function fetchTransactionPaymentStatus(
     throw new Error(`GET ${url} failed: ${response.status}`)
   }
 
-  const payload = (await response.json()) as Partial<PaymentStatusCounts>
-  const success = payload.SUCCESS ?? 0
-  const failed = payload.FAILED ?? 0
-  const pending = payload.PENDING ?? 0
+  type PaymentStatusCountsPayload = Partial<PaymentStatusCounts> & {
+    success?: number
+    failed?: number
+    pending?: number
+  }
+
+  const payload = (await response.json()) as PaymentStatusCountsPayload
+  const success = payload.SUCCESS ?? payload.success ?? 0
+  const failed = payload.FAILED ?? payload.failed ?? 0
+  const pending = payload.PENDING ?? payload.pending ?? 0
   return {
     SUCCESS: success,
     FAILED: failed,
