@@ -52,7 +52,7 @@ The app renders transaction data in tabs and a Material-UI DataGrid:
 
 The client calls these endpoints on the Dashboard API:
 
-#### `GET /api/transactions/:status`
+#### `GET /transactions/:status`
 
 Fetch transactions by status.
 
@@ -67,7 +67,7 @@ Fetch transactions by status.
 }
 ```
 
-#### `GET /api/transaction-payment-status`
+#### `GET /transaction-payment-status`
 
 Fetch aggregate status counts.
 
@@ -154,11 +154,11 @@ curl http://localhost:8080/health
 2. Verify transaction endpoint:
 
 ```bash
-curl http://localhost:8080/api/transactions/success
+curl http://localhost:8080/transactions/success
 ```
 
 3. Verify status counts endpoint:
 
 ```bash
-curl http://localhost:8080/api/transaction-payment-status
+curl http://localhost:8080/transaction-payment-status
 ```
