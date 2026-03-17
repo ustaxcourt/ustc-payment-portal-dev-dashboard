@@ -201,7 +201,7 @@ This script:
 npm run web-client:test:coverage
 ```
 
-Runs Cypress e2e test coverage for the web client.
+Runs the configured web client test command for coverage.
 
 ### Individual Test Scripts
 
@@ -211,8 +211,8 @@ Runs Cypress e2e test coverage for the web client.
 | `npm run test:db:teardown` | Rollback all migrations (cleanup) |
 | `npm run dashboard:test` | Dashboard API tests with setup/teardown |
 | `npm run dashboard:test:coverage` | Dashboard API tests + coverage report with setup/teardown |
-| `npm run web-client:test` | Cypress e2e tests |
-| `npm run web-client:test:coverage` | Cypress e2e tests with coverage |
+| `npm run web-client:test` | Web client automated tests |
+| `npm run web-client:test:coverage` | Web client automated tests with coverage |
 
 ---
 

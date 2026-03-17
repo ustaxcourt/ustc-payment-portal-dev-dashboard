@@ -33,17 +33,6 @@ export default defineConfig([
     },
   },
   {
-    files: ['cypress/**/*.{ts,tsx}'],
-    languageOptions: {
-      globals: {
-        ...globals.browser,
-        ...globals.mocha,
-        cy: 'readonly',
-        Cypress: 'readonly',
-      },
-    },
-  },
-  {
     files: ['src/lib/hooks/useFetch.ts'],
     rules: {
       'react-hooks/exhaustive-deps': 'off',

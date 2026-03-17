@@ -103,12 +103,7 @@ If not set, defaults to `http://localhost:3001`. Vite only exposes variables pre
 
 ## Testing
 
-### E2E Tests with Cypress
-
-```bash
-npm run test:e2e          # Run Cypress tests
-npm run test:coverage     # Run with coverage report
-```
+No automated test runner is configured in this package.
 
 ---
 
@@ -118,8 +113,7 @@ npm run test:coverage     # Run with coverage report
 npm run dev              # Start dev server (hot reload)
 npm run build            # Build for production
 npm run preview          # Preview production build
-npm run test:e2e         # Run Cypress e2e tests
-npm run test:coverage    # Run tests with coverage report
+npm run test             # Placeholder script (no automated tests configured)
 npm run lint             # Run ESLint
 npm run format           # Format code with Prettier
 ```
@@ -137,15 +131,7 @@ npm run format           # Format code with Prettier
 
 ## Test Coverage Notes
 
-Current e2e coverage includes:
-
-- Route loading for each status page
-- Tab-click behavior that changes DataGrid rows
-- API error response handling
-- Delayed response behavior and empty-grid rendering
-- Tab count synchronization with count endpoint and per-tab totals
-
-Specs are under `cypress/e2e/`.
+No automated coverage workflow is currently configured for this package.
 
 ## Key Source Locations
 
