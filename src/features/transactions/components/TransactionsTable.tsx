@@ -50,112 +50,114 @@ const nullableTextFormatter: GridValueFormatter<Transaction> = (value) => {
 }
 
 export default function TransactionsTable({ rows, loading, status, error }: TransactionsTableProps): React.ReactElement {
-  const columns: GridColDef<Transaction>[] = [
-    {
-      field: 'createdAt',
-      headerName: 'Created At',
-      type: 'dateTime',
-      flex: 1.2,
-      minWidth: 180,
-      valueGetter: (_value, row) => toDateOrNull(row.createdAt),
-      renderCell: (params) => (
-        <Box component="span" sx={{ whiteSpace: 'pre-line', fontVariantNumeric: 'tabular-nums' }}>
-          {fmtDateTime(params.value)}
-        </Box>
-      ),
-      sortable: true,
-    },
-    {
-      field: 'lastUpdatedAt',
-      headerName: 'Last Updated',
-      type: 'dateTime',
-      flex: 1.2,
-      minWidth: 180,
-      valueGetter: (_value, row) => toDateOrNull(row.lastUpdatedAt),
-      renderCell: (params) => (
-        <Box component="span" sx={{ whiteSpace: 'pre-line', fontVariantNumeric: 'tabular-nums' }}>
-          {fmtDateTime(params.value)}
-        </Box>
-      ),
-      sortable: true,
-    },
+  const columns: GridColDef<Transaction>[] = React.useMemo(() => {
+    return [
+      {
+        field: 'createdAt',
+        headerName: 'Created At',
+        type: 'dateTime',
+        flex: 1.2,
+        minWidth: 180,
+        valueGetter: (_value, row) => toDateOrNull(row.createdAt),
+        renderCell: (params) => (
+          <Box component="span" sx={{ whiteSpace: 'pre-line', fontVariantNumeric: 'tabular-nums' }}>
+            {fmtDateTime(params.value)}
+          </Box>
+        ),
+        sortable: true,
+      },
+      {
+        field: 'lastUpdatedAt',
+        headerName: 'Last Updated',
+        type: 'dateTime',
+        flex: 1.2,
+        minWidth: 180,
+        valueGetter: (_value, row) => toDateOrNull(row.lastUpdatedAt),
+        renderCell: (params) => (
+          <Box component="span" sx={{ whiteSpace: 'pre-line', fontVariantNumeric: 'tabular-nums' }}>
+            {fmtDateTime(params.value)}
+          </Box>
+        ),
+        sortable: true,
+      },
 
-    { field: 'feeName', headerName: 'Fee Name', flex: 1.4, minWidth: 230 },
-    { field: 'feeId', headerName: 'Fee Identifier', flex: 1, minWidth: 150 },
+      { field: 'feeName', headerName: 'Fee Name', flex: 1.4, minWidth: 230 },
+      { field: 'feeId', headerName: 'Fee Identifier', flex: 1, minWidth: 150 },
 
-    {
-      field: 'feeAmount',
-      headerName: 'Amount',
-      flex: 0.6,
-      minWidth: 110,
-      type: 'number',
-      valueFormatter: moneyFormatter,
-      sortable: true,
-    },
+      {
+        field: 'feeAmount',
+        headerName: 'Amount',
+        flex: 0.6,
+        minWidth: 110,
+        type: 'number',
+        valueFormatter: moneyFormatter,
+        sortable: true,
+      },
 
-    { field: 'clientName', headerName: 'Client Name', flex: 1.2, minWidth: 180 },
+      { field: 'clientName', headerName: 'Client Name', flex: 1.2, minWidth: 180 },
 
-    {
-      field: 'paymentMethod',
-      headerName: 'Payment Method',
-      flex: 1,
-      minWidth: 140,
-    },
-    {
-      field: 'paymentStatus',
-      headerName: 'Payment Status',
-      flex: 1,
-      minWidth: 130,
-      sortable: true,
-    },
-    {
-      field: 'transactionStatus',
-      headerName: 'Transaction Status',
-      flex: 1,
-      minWidth: 160,
-      valueFormatter: nullableTextFormatter,
-    },
+      {
+        field: 'paymentMethod',
+        headerName: 'Payment Method',
+        flex: 1,
+        minWidth: 140,
+      },
+      {
+        field: 'paymentStatus',
+        headerName: 'Payment Status',
+        flex: 1,
+        minWidth: 130,
+        sortable: true,
+      },
+      {
+        field: 'transactionStatus',
+        headerName: 'Transaction Status',
+        flex: 1,
+        minWidth: 160,
+        valueFormatter: nullableTextFormatter,
+      },
 
-    { field: 'agencyTrackingId', headerName: 'Agency Tracking ID', flex: 1.2, minWidth: 180 },
+      { field: 'agencyTrackingId', headerName: 'Agency Tracking ID', flex: 1.2, minWidth: 180 },
 
-    {
-      field: 'paygovTrackingId',
-      headerName: 'Pay.gov Tracking ID',
-      flex: 1.2,
-      minWidth: 180,
-      valueFormatter: nullableTextFormatter,
-    },
+      {
+        field: 'paygovTrackingId',
+        headerName: 'Pay.gov Tracking ID',
+        flex: 1.2,
+        minWidth: 180,
+        valueFormatter: nullableTextFormatter,
+      },
 
-    {
-      field: 'paygovToken',
-      headerName: 'Pay.gov Token',
-      flex: 1,
-      minWidth: 160,
-      valueFormatter: nullableTextFormatter,
-    },
+      {
+        field: 'paygovToken',
+        headerName: 'Pay.gov Token',
+        flex: 1,
+        minWidth: 160,
+        valueFormatter: nullableTextFormatter,
+      },
 
-    {
-      field: 'transactionReferenceId',
-      headerName: 'Reference ID',
-      flex: 1.2,
-      minWidth: 170,
-    },
+      {
+        field: 'transactionReferenceId',
+        headerName: 'Reference ID',
+        flex: 1.2,
+        minWidth: 170,
+      },
 
-    {
-      field: 'metadata',
-      headerName: 'Metadata',
-      flex: 2,
-      minWidth: 260,
-      renderCell: (params) => (
-        <Box
-          component="span"
-          sx={{ whiteSpace: 'pre-line', fontSize: '0.85rem', lineHeight: 1.3 }}
-        >
-          {fmtMetadata(params.row.metadata)}
-        </Box>
-      ),
-    },
-  ];
+      {
+        field: 'metadata',
+        headerName: 'Metadata',
+        flex: 2,
+        minWidth: 260,
+        renderCell: (params) => (
+          <Box
+            component="span"
+            sx={{ whiteSpace: 'pre-line', fontSize: '0.85rem', lineHeight: 1.3 }}
+          >
+            {fmtMetadata(params.row.metadata)}
+          </Box>
+        ),
+      },
+    ]
+  }, [fmtDateTime, fmtMetadata, moneyFormatter, nullableTextFormatter, toDateOrNull]);
 
   return (
     <Box
