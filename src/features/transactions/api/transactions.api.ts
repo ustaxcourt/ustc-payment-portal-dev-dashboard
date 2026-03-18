@@ -77,6 +77,6 @@ export async function fetchTransactionPaymentStatus(
     SUCCESS: success,
     FAILED: failed,
     PENDING: pending,
-    total: payload.total ?? success + failed + pending,
+    total: payload.total ?? 0,
   }
 }

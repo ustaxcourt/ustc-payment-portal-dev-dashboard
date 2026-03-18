@@ -6,7 +6,7 @@ import {
 } from '@mui/x-data-grid'
 import { Box, Alert } from '@mui/material'
 import type { Transaction } from '../types'
-import GridSortIconCircle from './GridSortIconCircle'
+import GridSortIconCircle from '../../../components/GridSortIconCircle'
 import dayjs from 'dayjs'
 
 export interface TransactionsTableProps {
