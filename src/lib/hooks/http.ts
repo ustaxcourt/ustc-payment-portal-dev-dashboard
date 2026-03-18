@@ -1,3 +1,4 @@
+import React from 'react'
 import { useFetch } from './useFetch'
 
 export function useGet<T>(url: string, deps: React.DependencyList = []) {

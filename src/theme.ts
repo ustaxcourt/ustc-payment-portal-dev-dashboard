@@ -149,6 +149,7 @@ const theme = createTheme({
 
           // Keep square in all states
           '&:hover': { borderRadius: 0 },
+          '&:focus, &:focus-visible': { outline: 'none', boxShadow: 'none' },
           '&.Mui-focusVisible': { borderRadius: 0, outline: 'none', boxShadow: 'none' },
 
           // Selected tab: remove bottom border and overlap by 1px to "erase" the row line
@@ -176,19 +177,6 @@ const theme = createTheme({
         }),
       },
     },
-
-    // Optional: normalize ButtonBase focus so it doesn't add a highlight
-    MuiButtonBase: {
-      defaultProps: { disableRipple: true },
-      styleOverrides: {
-        root: {
-          outline: 'none',
-          '&:focus, &:focus-visible': { outline: 'none', boxShadow: 'none' },
-          WebkitTapHighlightColor: 'transparent',
-        },
-      },
-    },
-
 
     // MuiDataGrid styles
     MuiDataGrid: {
