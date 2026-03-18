@@ -32,10 +32,11 @@ export default function TransactionsLayout() {
   }, [pathname])
 
   const { data, loading, error } = useTransactionsByTab(currentTab)
-  const { data: initialCounts } = useFetch(
-    (signal) => fetchTransactionPaymentStatus({ signal }),
+  const fetchInitialCounts = React.useCallback(
+    (signal: AbortSignal) => fetchTransactionPaymentStatus({ signal }),
     []
   )
+  const { data: initialCounts } = useFetch(fetchInitialCounts)
 
   const [counts, setCounts] = React.useState<Record<TabStatus, number>>({
     ALL: 0,

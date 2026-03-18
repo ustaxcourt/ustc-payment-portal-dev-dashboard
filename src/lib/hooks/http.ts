@@ -1,24 +1,25 @@
 import React from 'react'
 import { useFetch } from './useFetch'
 
-export function useGet<T>(url: string, deps: React.DependencyList = []) {
-  return useFetch<T>(
-    (signal) =>
+export function useGet<T>(url: string) {
+  const fetcher = React.useCallback(
+    (signal: AbortSignal) =>
       fetch(url, { method: 'GET', signal }).then(async (res) => {
         if (!res.ok) throw new Error(`GET failed: ${res.status}`)
         return res.json()
       }),
-    deps
+    [url]
   )
+
+  return useFetch<T>(fetcher)
 }
 
 export function usePost<T, B = unknown>(
   url: string,
-  body: B,
-  deps: React.DependencyList = []
+  body: B
 ) {
-  return useFetch<T>(
-    (signal) =>
+  const fetcher = React.useCallback(
+    (signal: AbortSignal) =>
       fetch(url, {
         method: 'POST',
         signal,
@@ -28,6 +29,8 @@ export function usePost<T, B = unknown>(
         if (!res.ok) throw new Error(`POST failed: ${res.status}`)
         return res.json()
       }),
-    deps
+    [body, url]
   )
+
+  return useFetch<T>(fetcher)
 }

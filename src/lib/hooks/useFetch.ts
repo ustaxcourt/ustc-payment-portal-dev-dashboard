@@ -8,8 +8,7 @@ export interface UseFetchState<T> {
 }
 
 export function useFetch<T>(
-  fetcher: (signal: AbortSignal) => Promise<T>,
-  deps: React.DependencyList = []
+  fetcher: (signal: AbortSignal) => Promise<T>
 ): UseFetchState<T> {
   const [data, setData] = React.useState<T | null>(null)
   const [error, setError] = React.useState<Error | null>(null)
@@ -29,7 +28,7 @@ export function useFetch<T>(
       .finally(() => setLoading(false))
 
     return () => ac.abort()
-  }, deps)
+  }, [fetcher])
 
   React.useEffect(() => {
     const abort = fetchData()

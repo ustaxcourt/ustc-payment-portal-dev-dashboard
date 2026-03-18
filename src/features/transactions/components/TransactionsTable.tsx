@@ -157,7 +157,7 @@ export default function TransactionsTable({ rows, loading, status, error }: Tran
         ),
       },
     ]
-  }, [fmtDateTime, fmtMetadata, moneyFormatter, nullableTextFormatter, toDateOrNull]);
+  }, []);
 
   return (
     <Box

@@ -32,11 +32,4 @@ export default defineConfig([
       'react-refresh/only-export-components': ['error', { allowConstantExport: true }],
     },
   },
-  {
-    files: ['src/lib/hooks/useFetch.ts'],
-    rules: {
-      'react-hooks/exhaustive-deps': 'off',
-      'react-hooks/use-memo': 'off',
-    },
-  },
 ])
