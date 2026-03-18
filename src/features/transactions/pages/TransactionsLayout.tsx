@@ -56,9 +56,9 @@ export default function TransactionsLayout() {
     setCounts((prev) => ({
       ...prev,
       ALL: initialCounts.total,
-      SUCCESS: initialCounts.SUCCESS,
-      FAILED: initialCounts.FAILED,
-      PENDING: initialCounts.PENDING,
+      SUCCESS: initialCounts.success,
+      FAILED: initialCounts.failed,
+      PENDING: initialCounts.pending,
     }))
     hasInitializedCounts.current = true
   }, [initialCounts])

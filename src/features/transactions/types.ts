@@ -11,6 +11,8 @@ export type TransactionStatus =
 
 export type PaymentStatus = 'PENDING' | 'SUCCESS' | 'FAILED'
 
+export type PaymentStatusCounts = { pending: number, success: number, failed: number, total: number }
+
 /** UI-level tab identifier — extends PaymentStatus with the 'all' aggregate tab. */
 export type TabStatus = PaymentStatus | 'ALL'
 
