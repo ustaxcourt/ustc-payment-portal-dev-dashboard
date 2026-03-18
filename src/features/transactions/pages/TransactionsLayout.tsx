@@ -83,7 +83,7 @@ export default function TransactionsLayout() {
 
   // When the tab changes, navigate to the corresponding child route
   const handleTabChange = (value: TabStatus) => {
-    navigate(value.toLowerCase())
+    navigate(`/transactions/${value.toLowerCase()}`)
   }
 
   return (
