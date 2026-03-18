@@ -1,19 +1,19 @@
 import * as React from 'react'
 import { Box, Divider, Typography } from '@mui/material'
 
-export interface FinanceDashboardHeaderProps {
+export interface DashboardHeaderProps {
   title?: string
   subtitle?: string
   rightContent?: React.ReactNode
   dividerThickness?: number  // still supported as an override
 }
 
-export default function FinanceDashboardHeader({
+export default function DashboardHeader({
   title = 'Payment Portal',
   subtitle = '',
   rightContent,
   dividerThickness, // optional override
-}: FinanceDashboardHeaderProps) {
+}: DashboardHeaderProps) {
   return (
     <Box component="header">
       <Box

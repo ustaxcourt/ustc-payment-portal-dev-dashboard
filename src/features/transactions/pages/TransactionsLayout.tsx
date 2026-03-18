@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Box, Typography } from '@mui/material'
-import FinanceDashboardHeader from '../../../components/FinanceDashboardHeader'
+import DashboardHeader from '../../../components/DashboardHeader'
 import StatusTabs from '../components/StatusTabs'
 import { useFetch } from '../../../lib/hooks/useFetch'
 import { useTransactionsByTab } from '../hooks/useTransactionByStatus'
@@ -88,7 +88,7 @@ export default function TransactionsLayout() {
 
   return (
     <Box>
-      <FinanceDashboardHeader />
+      <DashboardHeader />
 
       <Box sx={{ m: 2 }}>
         <Typography variant="h6" sx={{ my: 2, fontWeight: 700 }}>
