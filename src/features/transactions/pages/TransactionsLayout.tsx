@@ -3,10 +3,9 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Box, Typography } from '@mui/material'
 import DashboardHeader from '../../../components/DashboardHeader'
 import StatusTabs from '../components/StatusTabs'
-import { useFetch } from '../../../lib/hooks/useFetch'
-import { useTransactionsByTab } from '../hooks/useTransactionByStatus'
-import { fetchTransactionPaymentStatus } from '../api/transactions.api'
 import type { TabStatus, Transaction } from '../types'
+import { useTransactionsByTab } from '../hooks/useTransactionsByTab'
+import { useFetchInitialCounts } from '../hooks/useFetchInitialCounts'
 
 export interface TransactionsLayoutContext {
   status: TabStatus
@@ -24,7 +23,6 @@ export default function TransactionsLayout() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
-  // Derive the current tab value from the URL
   const currentTab: TabStatus = React.useMemo(() => {
     const seg = pathname.split('/').pop() || ''
     const normalized = seg.toUpperCase()
@@ -32,11 +30,7 @@ export default function TransactionsLayout() {
   }, [pathname])
 
   const { data, loading, error } = useTransactionsByTab(currentTab)
-  const fetchInitialCounts = React.useCallback(
-    (signal: AbortSignal) => fetchTransactionPaymentStatus({ signal }),
-    []
-  )
-  const { data: initialCounts } = useFetch(fetchInitialCounts)
+  const { data: initialCounts } = useFetchInitialCounts()
 
   const [counts, setCounts] = React.useState<Record<TabStatus, number>>({
     ALL: 0,
