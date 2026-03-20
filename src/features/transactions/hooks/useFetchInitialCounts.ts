@@ -1,4 +1,4 @@
-import React from "react"
+import * as React from "react"
 import { fetchTransactionPaymentStatus } from "../api/transactions.api"
 import { useFetch } from "../../../lib/hooks/useFetch"
 

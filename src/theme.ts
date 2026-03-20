@@ -138,7 +138,7 @@ const theme = createTheme({
           // Keep square in all states
           '&:hover': { borderRadius: 0 },
           '&:focus, &:focus-visible': { outline: 'none', boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.24)}`, borderRadius: 0 },
-          '&.Mui-focusVisible': { borderRadius: 0, outline: 'none', boxShadow: 'none' },
+          '&.Mui-focusVisible': { borderRadius: 0, boxShadow: 'none' },
 
           // Selected tab: remove bottom border and overlap by 1px to "erase" the row line
           '&.Mui-selected': {

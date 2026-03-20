@@ -1,4 +1,4 @@
-import React from "react"
+import * as React from "react"
 import type { TabStatus } from "../types"
 import { fetchAllTransactions, fetchTransactionsByStatus, type TransactionsResponse } from "../api/transactions.api"
 import { useFetch } from "../../../lib/hooks/useFetch"
