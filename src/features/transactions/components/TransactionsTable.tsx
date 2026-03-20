@@ -229,7 +229,7 @@ export default function TransactionsTable({ rows, loading, status, error }: Tran
           '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 700 },
           '& .MuiDataGrid-columnHeader': {
             '&.MuiDataGrid-columnHeader--sortable': { cursor: 'pointer' },
-            '&:not(.MuiDataGrid-columnHeader--sortable) .MuiDataGrid-sortIcon, & :not(.MuiDataGrid-columnHeader--sortable) .MuiDataGrid-sortIconButton':
+            '&:not(.MuiDataGrid-columnHeader--sortable) .MuiDataGrid-sortIcon, &:not(.MuiDataGrid-columnHeader--sortable) .MuiDataGrid-sortIconButton':
               { display: 'none' },
           },
         })}

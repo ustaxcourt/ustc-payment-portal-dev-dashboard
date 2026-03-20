@@ -1,5 +1,5 @@
 import type { } from '@mui/x-data-grid/themeAugmentation'
-import { createTheme } from '@mui/material/styles'
+import { alpha, createTheme } from '@mui/material/styles'
 
 declare module '@mui/material/styles' {
   interface Theme {
@@ -137,7 +137,7 @@ const theme = createTheme({
 
           // Keep square in all states
           '&:hover': { borderRadius: 0 },
-          '&:focus, &:focus-visible': { outline: 'none', boxShadow: 'none' },
+          '&:focus, &:focus-visible': { outline: 'none', boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.24)}`, borderRadius: 0 },
           '&.Mui-focusVisible': { borderRadius: 0, outline: 'none', boxShadow: 'none' },
 
           // Selected tab: remove bottom border and overlap by 1px to "erase" the row line
@@ -196,7 +196,7 @@ const theme = createTheme({
             backgroundColor: 'transparent',
             '&:hover': { backgroundColor: 'transparent' },
             '&.MuiDataGrid-columnHeader--moving': { backgroundColor: 'transparent' },
-            '&:focus, &:focus-within': { backgroundColor: 'transparent', outline: 'none' },
+            '&:focus, &:focus-within': { backgroundColor: 'transparent', outline: `2px solid ${theme.palette.primary.main}`, outlineOffset: -2},
           },
           '& .MuiDataGrid-columnHeaderTitleContainer, & .MuiDataGrid-iconButtonContainer': {
             opacity: 1,
