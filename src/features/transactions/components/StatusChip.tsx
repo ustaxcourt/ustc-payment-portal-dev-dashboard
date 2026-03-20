@@ -6,9 +6,14 @@ interface StatusChipProps extends Omit<ChipProps, 'color'> {
   status: TabStatus;
 }
 
+type StatusColors = {
+  bg: string;
+  fg: string;
+};
+
 export function StatusChip({ status, ...props }: StatusChipProps) {
   const theme = useTheme();
-  const map: Record<TabStatus, { bg: string; fg: string; }> = {
+  const colors: StatusColors = {
     ALL: {
       bg: '#e8eaf6',
       fg: theme.palette.primary.main,
@@ -25,13 +30,11 @@ export function StatusChip({ status, ...props }: StatusChipProps) {
       bg: theme.palette.pending.light,
       fg: theme.palette.pending.main,
     },
-  };
-  const colors = map[status];
+  }[status];
 
   return (
     <Chip
       size="small"
-      label={status}
       sx={{
         fontWeight: 700,
         fontSize: 15,

@@ -45,19 +45,11 @@ export function useFetch<T>(
           currentController.current = null
         }
       })
-
-    return () => {
-      // Only abort this request if it's still the latest
-      if (id === latestRequestId.current) {
-        currentController.current = null
-      }
-      ac.abort()
-    }
   }, [fetcher])
 
   React.useEffect(() => {
-    const abort = fetchData()
-    return abort
+    fetchData()
+    return () => currentController.current?.abort()
   }, [fetchData])
 
   return {
