@@ -14,20 +14,45 @@ export function useFetch<T>(
   const [error, setError] = React.useState<Error | null>(null)
   const [loading, setLoading] = React.useState(false)
 
+  const currentController = React.useRef<AbortController | null>(null)
+  const latestRequestId = React.useRef(0)
+
   const fetchData = React.useCallback(() => {
     const ac = new AbortController()
+    const id = ++latestRequestId.current
+
+    // Abort any previous in-flight request
+    if (currentController.current) {
+      currentController.current.abort()
+    }
+    currentController.current = ac
+
     setLoading(true)
     setError(null)
 
     fetcher(ac.signal)
-      .then((res) => setData(res))
+      .then((res) => {
+        if (id === latestRequestId.current) setData(res)
+      })
       .catch((err) => {
         if (err.name === 'AbortError') return
-        setError(err)
+        if (id === latestRequestId.current) setError(err)
       })
-      .finally(() => setLoading(false))
+      .finally(() => {
+        // Only clear loading for the latest request
+        if (id === latestRequestId.current) {
+          setLoading(false)
+          currentController.current = null
+        }
+      })
 
-    return () => ac.abort()
+    return () => {
+      // Only abort this request if it's still the latest
+      if (id === latestRequestId.current) {
+        currentController.current = null
+      }
+      ac.abort()
+    }
   }, [fetcher])
 
   React.useEffect(() => {

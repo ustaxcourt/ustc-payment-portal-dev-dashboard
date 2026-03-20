@@ -1,4 +1,4 @@
-import type { } from '@mui/x-data-grid/themeAugmentation' // For MuiDataGrid
+import type { } from '@mui/x-data-grid/themeAugmentation'
 import { createTheme } from '@mui/material/styles'
 
 declare module '@mui/material/styles' {
@@ -18,12 +18,10 @@ declare module '@mui/material/styles' {
     app?: Partial<Theme['app']>
   }
   interface Palette {
-    success: Palette['success'];
     failed: Palette['error'];
     pending: Palette['warning'];
   }
   interface PaletteOptions {
-    success?: PaletteOptions['success'];
     failed?: PaletteOptions['error'];
     pending?: PaletteOptions['warning'];
   }
@@ -32,11 +30,9 @@ declare module '@mui/material/styles' {
 
 const theme = createTheme({
   palette: {
-    // Set your brand blue once, reuse everywhere
     primary: {
-      main: '#1a4480',    // <- the blue you used on the divider/subtitle
+      main: '#1a4480',
     },
-    // Optional: adjust greys/backgrounds to match your mock
     background: {
       default: '#fff',
       paper: '#fff',
@@ -55,10 +51,9 @@ const theme = createTheme({
     }
   },
 
-  // Uses app module above
   app: {
     headerTone: {
-      successBg: '#edf3ec', // use palette.success later if you like
+      successBg: '#edf3ec',
       successBorder: '#2e7d32',
       failedBg: '#f8dfe2',
       failedBorder: '#c62828',
@@ -68,37 +63,33 @@ const theme = createTheme({
   },
 
   typography: {
-    // Make h4/h5 bolder globally so header picks it up
+    /** Make h4/h5 bolder globally so header picks it up */
     h4: { fontWeight: 800, lineHeight: 1.1 },
     h5: { fontWeight: 800, lineHeight: 1.1 },
   },
 
   components: {
-    // Global Divider styles: a “blue bottom border” look
     MuiDivider: {
       styleOverrides: {
         root: ({ theme }) => ({
-          borderColor: theme.palette.primary.main, // use theme primary
+          borderColor: theme.palette.primary.main,
           borderTop: 'none',
         }),
       },
-      // Optional variants so you can pick thickness via `variant="thick"`
       variants: [
         {
           props: { variant: 'fullWidth' },
           style: ({ theme: _theme }) => ({
-            borderBottomWidth: 4, // nicer default for full-width dividers
+            borderBottomWidth: 4,
           }),
         },
         {
-          // Custom “thick” variant you can opt into
-          props: { variant: 'middle' }, // or define your own prop using sx when used
+          props: { variant: 'middle' },
           style: { borderBottomWidth: 6 },
         },
       ],
     },
 
-    // If you want the subtitle (h5) to be blue globally:
     MuiTypography: {
       styleOverrides: {
         h5: ({ theme }) => ({
@@ -107,7 +98,6 @@ const theme = createTheme({
       },
     },
 
-    // Tabs row
     MuiTabs: {
       styleOverrides: {
         root: ({ theme: _theme }) => ({
@@ -118,12 +108,10 @@ const theme = createTheme({
           zIndex: 2,
           top: 1,
         }),
-        // We won't use the indicator for this pattern
         indicator: { display: 'none' },
       },
     },
 
-    // Individual Tab
     MuiTab: {
       defaultProps: {
         disableRipple: true,
@@ -156,8 +144,8 @@ const theme = createTheme({
           '&.Mui-selected': {
             borderRadius: 0,
             backgroundColor: '#fff',
-            borderBottomColor: 'transparent', // hide the tab's bottom border
-            marginBottom: -1,                  // overlap the Tabs root border-bottom by 1px
+            borderBottomColor: 'transparent',
+            marginBottom: -1,
             position: 'relative',
             border: `1px solid ${theme.palette.grey[700]}`,
             zIndex: 3,
@@ -191,7 +179,7 @@ const theme = createTheme({
         root: ({ theme }) => ({
           borderRadius: 0,
 
-          // Base gridlines (apply to all statuses)
+          // Base grid lines (apply to all statuses)
           '& .MuiDataGrid-columnHeaders': {
             backgroundColor: theme.palette.grey[100],
             fontWeight: 700,
@@ -204,7 +192,7 @@ const theme = createTheme({
             fontWeight: 700,
             borderTop: 0,
             borderBottom: `1px solid ${theme.palette.grey[700]}`,
-            // Make header cells transparent so the container bg shows uniformly
+            /** Make header cells transparent so the container background shows uniformly */
             backgroundColor: 'transparent',
             '&:hover': { backgroundColor: 'transparent' },
             '&.MuiDataGrid-columnHeader--moving': { backgroundColor: 'transparent' },
@@ -221,7 +209,7 @@ const theme = createTheme({
             '& svg': { color: theme.palette.grey[400] },
           },
 
-          // ---- Status-scoped rules (root has data-status) ----
+          /** ---- Status-scoped rules (root has data-status) ---- */
           '&[data-status="SUCCESS"] .MuiDataGrid-columnHeaders': {
             backgroundColor: theme.app.headerTone.successBg,
           },

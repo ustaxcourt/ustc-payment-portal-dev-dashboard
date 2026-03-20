@@ -31,18 +31,18 @@ export type PaymentMethod =
  * Comments show the label you specified in the Acceptance Criteria.
  */
 export type Transaction = {
-  agencyTrackingId: string /** Agency Tracking ID */
-  paygovTrackingId?: string | null /** Pay.gov Tracking ID (if one exists) */
-  feeName: string /** Fee Name */
-  feeId: string /** Fee Identifier */
-  feeAmount: number /** Fee Amount */
-  clientName: string /** App/Client Name */
-  transactionReferenceId: string /** Transaction Reference ID */
-  paymentStatus: PaymentStatus /** Payment Status */
-  transactionStatus?: TransactionStatus /** Transaction Status */
-  paygovToken?: string | null /** Pay.gov token */
-  paymentMethod: PaymentMethod /** Payment Method */
-  lastUpdatedAt: string /** Last Updated Timestamp (ISO 8601) */
-  createdAt: string /** Created Timestamp (ISO 8601) */
-  metadata?: Record<string, string> | null /** Metadata supplied(free - form key / value bag) */
+  agencyTrackingId: string
+  paygovTrackingId?: string | null
+  feeName: string
+  feeId: string
+  feeAmount: number
+  clientName: string
+  transactionReferenceId: string
+  paymentStatus: PaymentStatus
+  transactionStatus?: TransactionStatus
+  paygovToken?: string | null
+  paymentMethod: PaymentMethod
+  lastUpdatedAt: string
+  createdAt: string
+  metadata?: Record<string, string> | null
 }

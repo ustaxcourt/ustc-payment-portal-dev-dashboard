@@ -115,7 +115,6 @@ npm run build            # Build for production
 npm run preview          # Preview production build
 npm run test             # Placeholder script (no automated tests configured)
 npm run lint             # Run ESLint
-npm run format           # Format code with Prettier
 ```
 
 ---

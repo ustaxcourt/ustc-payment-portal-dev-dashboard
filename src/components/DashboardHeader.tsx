@@ -5,14 +5,14 @@ export interface DashboardHeaderProps {
   title?: string
   subtitle?: string
   rightContent?: React.ReactNode
-  dividerThickness?: number  // still supported as an override
+  dividerThickness?: number
 }
 
 export default function DashboardHeader({
   title = 'Payment Portal',
   subtitle = '',
   rightContent,
-  dividerThickness, // optional override
+  dividerThickness,
 }: DashboardHeaderProps) {
   return (
     <Box component="header">

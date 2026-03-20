@@ -105,6 +105,6 @@ export default function TransactionsLayout() {
           } satisfies TransactionsLayoutContext}
         />
       </Box>
-    </Box >
+    </Box>
   )
 }

@@ -8,26 +8,22 @@ interface StatusChipProps extends Omit<ChipProps, 'color'> {
 
 export function StatusChip({ status, ...props }: StatusChipProps) {
   const theme = useTheme();
-  const map: Record<TabStatus, { bg: string; fg: string; bd: string }> = {
+  const map: Record<TabStatus, { bg: string; fg: string; }> = {
     ALL: {
       bg: '#e8eaf6',
       fg: theme.palette.primary.main,
-      bd: theme.palette.primary.main,
     },
     SUCCESS: {
-      bg: theme.palette.success?.light,
-      fg: theme.palette.success?.main,
-      bd: theme.palette.success?.main,
+      bg: theme.palette.success.light,
+      fg: theme.palette.success.main,
     },
     FAILED: {
-      bg: theme.palette.failed?.light,
-      fg: theme.palette.failed?.main,
-      bd: theme.palette.failed?.main,
+      bg: theme.palette.failed.light,
+      fg: theme.palette.failed.main,
     },
     PENDING: {
-      bg: theme.palette.pending?.light,
-      fg: theme.palette.pending?.main,
-      bd: theme.palette.pending?.main,
+      bg: theme.palette.pending.light,
+      fg: theme.palette.pending.main,
     },
   };
   const colors = map[status];
