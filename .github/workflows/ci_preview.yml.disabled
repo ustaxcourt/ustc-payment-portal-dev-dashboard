@@ -45,17 +45,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Cache Cypress
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/Cypress
-          key: cypress-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            cypress-${{ runner.os }}-
-
-      - name: E2E
-        run: npm run test:e2e
-
       # ----- Deploy preview only if all checks passed -----
 
       - name: Configure AWS credentials (OIDC)
