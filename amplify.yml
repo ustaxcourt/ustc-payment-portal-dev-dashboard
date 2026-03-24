@@ -3,6 +3,7 @@ frontend:
   phases:
     preBuild:
       commands:
+        - npm config set cache .npm --location=project
         - npm ci
         - npm run lint
     build:

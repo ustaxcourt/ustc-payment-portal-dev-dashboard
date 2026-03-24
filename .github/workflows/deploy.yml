@@ -8,6 +8,10 @@ permissions:
   id-token: write
   contents: read
 
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
+
 env:
   NODE_VERSION: "24"
   AWS_REGION: ${{ vars.AWS_REGION }}
