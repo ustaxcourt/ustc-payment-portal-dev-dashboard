@@ -1,10 +1,10 @@
 # Amplify Hosting Plan: USTC Payment Portal Dev Dashboard
-**Still needs human review and comparison against the PAY-053 branch in ustc-payment-portL**
+**Still needs human review and comparison against the PAY-053 branch in ustc-payment-portal**
 **Remove plan before merge**
 
 **Target:** `dashboard.dev-payments.ustaxcourt.gov`
 **API Target:** `dev-payments.ustaxcourt.gov` (ustc-payment-portal)
-**AWS Account:** USTC Payment Portal Dev
+**AWS Account:** USTC Payment Portal Dev (account `723609007960`, region `us-east-1`)
 
 ---
 
@@ -12,15 +12,16 @@
 
 > Do this in the **Payment Portal Dev** AWS account.
 
-1. **Open the Amplify console** → select your target region (match wherever the payment portal API lives).
+1. **Open the Amplify console** → select **us-east-1** (confirmed region for the payment portal API and Route 53 hosted zone).
 
-2. **Create a new app** → "Host web app" → connect to your GitHub repo (`ustc-payment-portal-dev-dashboard`).
+2. **Create a new app** → **"Build an app" (Gen 2)**, not "Host web app" (classic) → connect to your GitHub repo (`ustc-payment-portal-dev-dashboard`).
+   - The repo uses `@aws-amplify/backend` and `ampx pipeline-deploy` — these require a Gen 2 app. Classic Amplify Hosting will not work with the existing `deploy.yml`.
    - Select the `main` branch as the production branch.
    - Amplify will detect `amplify.yml` automatically — do **not** let it overwrite it.
 
 3. **Note the App ID** that Amplify assigns (e.g. `d1abc123xyz`). You'll need this for GitHub secrets.
 
-4. **Review the build settings** — Amplify should pick up `amplify.yml` verbatim:
+4. **Review the build settings** — Amplify should pick up `amplify.yml` verbatim. The file already includes a `customRules` SPA rewrite that serves `index.html` for all non-asset paths, which is required for React Router to handle direct URL navigation and page refreshes correctly.
    ```yaml
    preBuild: npm ci + npm run lint
    build: npm run build
@@ -36,11 +37,13 @@
 
 The existing `deploy.yml` already uses OIDC. You need an IAM role in the Payment Portal Dev account that GitHub Actions can assume.
 
-1. **Create an OIDC Identity Provider** (if not already present):
-   - Provider URL: `https://token.actions.githubusercontent.com`
-   - Audience: `sts.amazonaws.com`
+1. **The OIDC Identity Provider already exists** — the payment portal has already registered it in this account:
+   ```
+   arn:aws:iam::723609007960:oidc-provider/token.actions.githubusercontent.com
+   ```
+   Do not create a duplicate. Verify it is present under *IAM → Identity providers* before proceeding.
 
-2. **Create an IAM Role** (e.g. `github-actions-amplify-deploy`) with:
+2. **Create a new IAM Role** (e.g. `github-actions-amplify-deploy`) with:
 
    **Trust Policy:**
    ```json
@@ -49,7 +52,7 @@ The existing `deploy.yml` already uses OIDC. You need an IAM role in the Payment
      "Statement": [{
        "Effect": "Allow",
        "Principal": {
-         "Federated": "arn:aws:iam::<ACCOUNT_ID>:oidc-provider/token.actions.githubusercontent.com"
+         "Federated": "arn:aws:iam::723609007960:oidc-provider/token.actions.githubusercontent.com"
        },
        "Action": "sts:AssumeRoleWithWebIdentity",
        "Condition": {
@@ -63,7 +66,7 @@ The existing `deploy.yml` already uses OIDC. You need an IAM role in the Payment
      }]
    }
    ```
-   Replace `ustaxcourt/ustc-payment-portal-dev-dashboard` with the actual org/repo path.
+   The `sub` condition scopes this role exclusively to the dashboard repo — the payment portal's deployer role (`ustc-payment-processor-dev-cicd-deployer-role`) uses a separate condition scoped to `repo:ustaxcourt/ustc-payment-portal:*` and must not be reused here.
 
    **Permission Policy** (minimum required for `ampx pipeline-deploy`):
    ```json
@@ -91,7 +94,7 @@ The existing `deploy.yml` already uses OIDC. You need an IAM role in the Payment
    ```
    Scope down the `Resource` ARNs once you have the Amplify app ARN and its CloudFormation stacks confirmed.
 
-3. **Copy the Role ARN** — it goes into GitHub secrets in Phase 5.
+3. **Copy the Role ARN** — it goes into GitHub secrets in Phase 6.
 
 ---
 
@@ -106,7 +109,7 @@ The dashboard has one runtime env var: `VITE_DASHBOARD_API_BASE_URL`. Vite bakes
    |-----|-------|
    | `VITE_DASHBOARD_API_BASE_URL` | `https://dev-payments.ustaxcourt.gov` |
 
-   This will be the final value once the API custom domain is live. Until then, use the raw API Gateway/ALB URL (e.g. `https://xyz.execute-api.us-east-1.amazonaws.com/dev`) as a temporary value.
+   The payment portal REST API uses this as its custom domain (stage `dev`, base path mapping at root). The raw API Gateway invoke URL (`https://<api-id>.execute-api.us-east-1.amazonaws.com/dev`) can be used as a temporary value during smoke testing before the CORS and resource policy changes in Phase 8 are deployed.
 
 3. Set the **branch** scope to `main`.
 
@@ -126,11 +129,9 @@ The dashboard has one runtime env var: `VITE_DASHBOARD_API_BASE_URL`. Vite bakes
    |-----------|--------|
    | `dashboard.dev-payments.ustaxcourt.gov` | `main` |
 
-   > Alternatively, if the dashboard should be at the apex (`dev-payments.ustaxcourt.gov`), configure it directly — but a named subdomain like `dashboard` is safer since the API also lives under this domain.
+4. Amplify will provision an **ACM certificate** for `dashboard.dev-payments.ustaxcourt.gov` automatically. Because the `dev-payments.ustaxcourt.gov` Route 53 hosted zone is in this same account, Amplify can insert the validation CNAME automatically — watch for a prompt to allow this. If it does not auto-validate, the required CNAME will be displayed in the Domain management console.
 
-4. Amplify will provision an **ACM certificate** for the domain automatically. It will output a set of **CNAME records** you must add to DNS to prove domain ownership and enable certificate issuance.
-
-5. Amplify will also output a **CloudFront CNAME target** (e.g. `d1abc123xyz.cloudfront.net`) for the actual traffic routing record.
+5. Amplify will also output a **CloudFront CNAME target** (e.g. `d1abc123xyz.cloudfront.net`) for the traffic routing record.
 
 **Do not proceed to DNS until Amplify has generated both the validation CNAME and the CloudFront CNAME.**
 
@@ -138,9 +139,9 @@ The dashboard has one runtime env var: `VITE_DASHBOARD_API_BASE_URL`. Vite bakes
 
 ## Phase 5 — DNS Configuration
 
-> This requires access to whoever manages the `ustaxcourt.gov` DNS zone (likely Route 53 in a separate account or an external registrar).
+The `dev-payments.ustaxcourt.gov` Route 53 hosted zone is managed by the payment portal's Terraform (`terraform/modules/api-gateway/main.tf` in `ustc-payment-portal`). Adding new records requires either a PR to that repo or a manual console addition.
 
-You'll need to add **three records** total:
+You need to add **two new records** — the API DNS record (`dev-payments.ustaxcourt.gov` → API Gateway) already exists and is managed by the payment portal's Terraform; do not touch it.
 
 ### A) ACM Certificate Validation (temporary — can be removed after cert is issued)
 
@@ -151,7 +152,7 @@ Value: _<amplify-generated-value>.acm-validations.aws
 TTL:   300
 ```
 
-Amplify shows the exact name/value in the Domain management console.
+Amplify shows the exact name/value in the Domain management console. If Amplify auto-validated using the Route 53 API, this record may already be present.
 
 ### B) Dashboard routing record (permanent)
 
@@ -161,17 +162,6 @@ Name:  dashboard.dev-payments.ustaxcourt.gov
 Value: <your-amplify-cloudfront-url>.cloudfront.net
 TTL:   300
 ```
-
-### C) API routing record (coordinate with the payment portal API team)
-
-```
-Type:  CNAME  (or ALIAS if using Route 53 + ALB/API Gateway)
-Name:  dev-payments.ustaxcourt.gov
-Value: <payment-portal-api-alb-or-apigw-url>
-TTL:   300
-```
-
-> **If the DNS zone is in a different AWS account:** open a ticket or coordinate with the infrastructure/platform team to add these. Do not add them yourself unless you have delegated authority over this zone.
 
 > **ACM cert propagation** typically takes 5–30 minutes after the CNAME validation record is live. Amplify's Domain management page will show "Pending verification" → "Available".
 
@@ -185,14 +175,14 @@ In the GitHub repo settings → **Secrets and variables → Actions**:
 
 | Secret Name | Value |
 |-------------|-------|
-| `AWS_ROLE_TO_ASSUME` | `arn:aws:iam::<ACCOUNT_ID>:role/github-actions-amplify-deploy` |
+| `AWS_ROLE_TO_ASSUME` | `arn:aws:iam::723609007960:role/github-actions-amplify-deploy` |
 | `AMPLIFY_APP_ID` | `<amplify-app-id-from-phase-1>` |
 
 **Repository Variables:**
 
 | Variable Name | Value |
 |---------------|-------|
-| `AWS_REGION` | `us-east-1` (or whichever region the Amplify app is in) |
+| `AWS_REGION` | `us-east-1` |
 
 These map exactly to what `deploy.yml` already expects — no workflow changes required.
 
@@ -205,30 +195,65 @@ These map exactly to what `deploy.yml` already expects — no workflow changes r
 2. **Watch the GitHub Actions run** — the `deploy.yml` job should:
    - Install → lint → build → test → assume OIDC role → `ampx pipeline-deploy`
 
-3. **Watch the Amplify console** — you should see a deployment job appear under the `main` branch within seconds of the GitHub Actions deploy step completing.
+3. **Watch the Amplify console** — a deployment job should appear under the `main` branch within seconds of the GitHub Actions deploy step completing.
 
-4. **Pre-domain validation:** Once deployed, Amplify provides a default URL (`https://main.<app-id>.amplifyapp.com`). Smoke test the dashboard here first — verify the DataGrid loads, the API calls hit the right base URL, and no console errors appear.
+4. **Pre-domain smoke test:** Amplify provides a default URL (`https://main.<app-id>.amplifyapp.com`). Use the raw API Gateway invoke URL as `VITE_DASHBOARD_API_BASE_URL` temporarily to verify the DataGrid loads and the API calls return data before the CORS changes in Phase 8 are live.
 
-5. **Post-domain validation:** Once DNS propagates and the ACM cert is issued, verify:
+5. **Post-domain validation:** Once DNS propagates, the ACM cert is issued, and Phase 8 is complete, verify:
    - `https://dashboard.dev-payments.ustaxcourt.gov` loads the app
    - No mixed-content warnings (all API calls go to `https://`)
    - Browser DevTools Network tab shows requests going to `https://dev-payments.ustaxcourt.gov`
+   - No CORS errors in the console
 
 ---
 
-## Phase 8 — CORS Configuration on the API
+## Phase 8 — CORS and Resource Policy Changes in `ustc-payment-portal`
 
-Once the dashboard is on a real domain, the API (ustc-payment-portal) must allow requests from it. Coordinate with the API team to ensure:
+> These are **Terraform changes in the `ustc-payment-portal` repo**, not console toggles. Both must be deployed before the dashboard on its custom domain can call the API.
 
+### 8a — CORS Headers on Dashboard Routes
+
+The payment portal API is a **REST API** (not an HTTP API). REST APIs do not have a single CORS toggle — CORS must be configured per-resource by adding:
+- An `OPTIONS` mock integration method on each resource
+- `Access-Control-Allow-*` headers in the method response and integration response of both the `OPTIONS` and the actual `GET` methods
+
+The three dashboard resources that need CORS added are:
+- `GET /transactions`
+- `GET /transactions/{paymentStatus}`
+- `GET /transaction-payment-status`
+
+Required response headers on both `OPTIONS` and each `GET`:
 ```
-Access-Control-Allow-Origin: https://dashboard.dev-payments.ustaxcourt.gov
+Access-Control-Allow-Origin:  https://dashboard.dev-payments.ustaxcourt.gov
 Access-Control-Allow-Methods: GET, OPTIONS
 Access-Control-Allow-Headers: Content-Type
 ```
 
-If the API uses API Gateway, this is configured in the API Gateway CORS settings or in the Lambda response headers. If it uses an ALB + Express/Node, it's in the `cors` middleware config.
+During initial testing from the default Amplify URL, temporarily also allow `https://main.<app-id>.amplifyapp.com`. Remove that origin once the custom domain is confirmed working.
 
-During initial testing from the default Amplify URL (`main.<app-id>.amplifyapp.com`), the API will need to temporarily allow that origin as well.
+### 8b — API Gateway Resource Policy
+
+The payment portal's API Gateway has a resource policy that restricts access to specific IAM principals. Dashboard calls originate from a user's browser and carry **no AWS credentials** — they will be blocked by the resource policy even though the dashboard routes have `authorization: NONE` at the method level.
+
+A `Allow` statement must be added to the resource policy to permit unauthenticated requests to the dashboard paths:
+
+```json
+{
+  "Effect": "Allow",
+  "Principal": "*",
+  "Action": "execute-api:Invoke",
+  "Resource": [
+    "arn:aws:execute-api:us-east-1:723609007960:<api-id>/dev/GET/transactions",
+    "arn:aws:execute-api:us-east-1:723609007960:<api-id>/dev/GET/transactions/*",
+    "arn:aws:execute-api:us-east-1:723609007960:<api-id>/dev/GET/transaction-payment-status",
+    "arn:aws:execute-api:us-east-1:723609007960:<api-id>/dev/OPTIONS/transactions",
+    "arn:aws:execute-api:us-east-1:723609007960:<api-id>/dev/OPTIONS/transactions/*",
+    "arn:aws:execute-api:us-east-1:723609007960:<api-id>/dev/OPTIONS/transaction-payment-status"
+  ]
+}
+```
+
+This statement scopes the public allow strictly to the three dashboard endpoints and their `OPTIONS` preflight methods. The SigV4-protected routes (`/init`, `/process`, `/details/*`, `/test`) remain untouched.
 
 ---
 
@@ -241,7 +266,7 @@ During initial testing from the default Amplify URL (`main.<app-id>.amplifyapp.c
 | **PR previews** | Re-enable `.github/workflows/ci_preview.yml.disabled` when ready; Amplify will create branch-specific preview URLs |
 | **Rollback** | Amplify console → select previous deployment → "Redeploy this version" |
 | **Certificate renewal** | ACM auto-renews; no manual action needed as long as the CNAME validation record stays in DNS |
-| **Access control** | Amplify supports basic auth password protection per-branch (useful for dev/staging) — set under *Branch settings → Access control* |
+| **Access control** | Amplify supports basic auth password protection per-branch — set under *Branch settings → Access control* |
 
 ---
 
@@ -249,8 +274,7 @@ During initial testing from the default Amplify URL (`main.<app-id>.amplifyapp.c
 
 Before starting Phase 1, confirm you have:
 
-- [ ] AWS console access to the **Payment Portal Dev** account with permissions to create Amplify apps and IAM roles
-- [ ] GitHub repo admin access (to add secrets/variables)
-- [ ] DNS write access to the `ustaxcourt.gov` zone (or a point of contact who does)
-- [ ] Confirmation of the final API subdomain from the payment portal team (`dev-payments.ustaxcourt.gov` or otherwise)
-- [ ] Confirmation of the AWS region to deploy into (must match the API's region to minimize latency and simplify networking)
+- [ ] AWS console access to the Payment Portal Dev account (`723609007960`) with permissions to create Amplify apps and IAM roles
+- [ ] GitHub repo admin access to `ustc-payment-portal-dev-dashboard` (to add secrets/variables)
+- [ ] Access to add records to the `dev-payments.ustaxcourt.gov` Route 53 hosted zone, or a PR open against `ustc-payment-portal` to have the payment portal Terraform manage them
+- [ ] A PR open or planned against `ustc-payment-portal` for the Phase 8 CORS and resource policy Terraform changes — the dashboard cannot make authenticated API calls until those are deployed (we can include this on the PR with our changes hooking up Knex so that migrations get applied to RDS DB)
