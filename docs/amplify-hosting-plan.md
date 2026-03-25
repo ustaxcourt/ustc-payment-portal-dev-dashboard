@@ -1,4 +1,5 @@
 # Amplify Hosting Plan: USTC Payment Portal Dev Dashboard
+
 **Still needs human review and comparison against the PAY-053 branch in ustc-payment-portal**
 **Remove plan before merge**
 
@@ -8,7 +9,7 @@
 
 ---
 
-## Phase 1 — Create the Amplify App in AWS
+## Phase 1 — Create the Amplify App in AWS - done
 
 > Do this in the **Payment Portal Dev** AWS account.
 
@@ -22,14 +23,16 @@
 3. **Note the App ID** that Amplify assigns (e.g. `d1abc123xyz`). You'll need this for GitHub secrets.
 
 4. **Review the build settings** — Amplify should pick up `amplify.yml` verbatim. The file already includes a `customRules` SPA rewrite that serves `index.html` for all non-asset paths, which is required for React Router to handle direct URL navigation and page refreshes correctly.
+
    ```yaml
    preBuild: npm ci + npm run lint
    build: npm run build
    artifacts baseDirectory: dist
    ```
+
    Confirm `dist` is the artifact root before saving.
 
-5. **Disable automatic branch deployments** on everything except `main` unless you intend to use PR previews. Under *App settings → General → Branch autodetect*, restrict it to `main`.
+5. **Disable automatic branch deployments** on everything except `main` unless you intend to use PR previews. Under _App settings → General → Branch autodetect_, restrict it to `main`.
 
 ---
 
@@ -38,37 +41,44 @@
 The existing `deploy.yml` already uses OIDC. You need an IAM role in the Payment Portal Dev account that GitHub Actions can assume.
 
 1. **The OIDC Identity Provider already exists** — the payment portal has already registered it in this account:
+
    ```
    arn:aws:iam::723609007960:oidc-provider/token.actions.githubusercontent.com
    ```
-   Do not create a duplicate. Verify it is present under *IAM → Identity providers* before proceeding.
+
+   Do not create a duplicate. Verify it is present under _IAM → Identity providers_ before proceeding.
 
 2. **Create a new IAM Role** (e.g. `github-actions-amplify-deploy`) with:
 
    **Trust Policy:**
+
    ```json
    {
      "Version": "2012-10-17",
-     "Statement": [{
-       "Effect": "Allow",
-       "Principal": {
-         "Federated": "arn:aws:iam::723609007960:oidc-provider/token.actions.githubusercontent.com"
-       },
-       "Action": "sts:AssumeRoleWithWebIdentity",
-       "Condition": {
-         "StringLike": {
-           "token.actions.githubusercontent.com:sub": "repo:ustaxcourt/ustc-payment-portal-dev-dashboard:*"
+     "Statement": [
+       {
+         "Effect": "Allow",
+         "Principal": {
+           "Federated": "arn:aws:iam::723609007960:oidc-provider/token.actions.githubusercontent.com"
          },
-         "StringEquals": {
-           "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+         "Action": "sts:AssumeRoleWithWebIdentity",
+         "Condition": {
+           "StringLike": {
+             "token.actions.githubusercontent.com:sub": "repo:ustaxcourt/ustc-payment-portal-dev-dashboard:*"
+           },
+           "StringEquals": {
+             "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+           }
          }
        }
-     }]
+     ]
    }
    ```
+
    The `sub` condition scopes this role exclusively to the dashboard repo — the payment portal's deployer role (`ustc-payment-processor-dev-cicd-deployer-role`) uses a separate condition scoped to `repo:ustaxcourt/ustc-payment-portal:*` and must not be reused here.
 
    **Permission Policy** (minimum required for `ampx pipeline-deploy`):
+
    ```json
    {
      "Version": "2012-10-17",
@@ -92,6 +102,7 @@ The existing `deploy.yml` already uses OIDC. You need an IAM role in the Payment
      ]
    }
    ```
+
    Scope down the `Resource` ARNs once you have the Amplify app ARN and its CloudFormation stacks confirmed.
 
 3. **Copy the Role ARN** — it goes into GitHub secrets in Phase 6.
@@ -105,8 +116,8 @@ The dashboard has one runtime env var: `VITE_DASHBOARD_API_BASE_URL`. Vite bakes
 1. In the Amplify console → your app → **Environment variables**.
 2. Add:
 
-   | Key | Value |
-   |-----|-------|
+   | Key                           | Value                                 |
+   | ----------------------------- | ------------------------------------- |
    | `VITE_DASHBOARD_API_BASE_URL` | `https://dev-payments.ustaxcourt.gov` |
 
    The payment portal REST API uses this as its custom domain (stage `dev`, base path mapping at root). The raw API Gateway invoke URL (`https://<api-id>.execute-api.us-east-1.amazonaws.com/dev`) can be used as a temporary value during smoke testing before the CORS and resource policy changes in Phase 8 are deployed.
@@ -125,8 +136,8 @@ The dashboard has one runtime env var: `VITE_DASHBOARD_API_BASE_URL`. Vite bakes
 
 3. **Configure subdomains:**
 
-   | Subdomain | Branch |
-   |-----------|--------|
+   | Subdomain                               | Branch |
+   | --------------------------------------- | ------ |
    | `dashboard.dev-payments.ustaxcourt.gov` | `main` |
 
 4. Amplify will provision an **ACM certificate** for `dashboard.dev-payments.ustaxcourt.gov` automatically. Because the `dev-payments.ustaxcourt.gov` Route 53 hosted zone is in this same account, Amplify can insert the validation CNAME automatically — watch for a prompt to allow this. If it does not auto-validate, the required CNAME will be displayed in the Domain management console.
@@ -173,16 +184,16 @@ In the GitHub repo settings → **Secrets and variables → Actions**:
 
 **Repository Secrets:**
 
-| Secret Name | Value |
-|-------------|-------|
+| Secret Name          | Value                                                          |
+| -------------------- | -------------------------------------------------------------- |
 | `AWS_ROLE_TO_ASSUME` | `arn:aws:iam::723609007960:role/github-actions-amplify-deploy` |
-| `AMPLIFY_APP_ID` | `<amplify-app-id-from-phase-1>` |
+| `AMPLIFY_APP_ID`     | `<amplify-app-id-from-phase-1>`                                |
 
 **Repository Variables:**
 
-| Variable Name | Value |
-|---------------|-------|
-| `AWS_REGION` | `us-east-1` |
+| Variable Name | Value       |
+| ------------- | ----------- |
+| `AWS_REGION`  | `us-east-1` |
 
 These map exactly to what `deploy.yml` already expects — no workflow changes required.
 
@@ -214,15 +225,18 @@ These map exactly to what `deploy.yml` already expects — no workflow changes r
 ### 8a — CORS Headers on Dashboard Routes
 
 The payment portal API is a **REST API** (not an HTTP API). REST APIs do not have a single CORS toggle — CORS must be configured per-resource by adding:
+
 - An `OPTIONS` mock integration method on each resource
 - `Access-Control-Allow-*` headers in the method response and integration response of both the `OPTIONS` and the actual `GET` methods
 
 The three dashboard resources that need CORS added are:
+
 - `GET /transactions`
 - `GET /transactions/{paymentStatus}`
 - `GET /transaction-payment-status`
 
 Required response headers on both `OPTIONS` and each `GET`:
+
 ```
 Access-Control-Allow-Origin:  https://dashboard.dev-payments.ustaxcourt.gov
 Access-Control-Allow-Methods: GET, OPTIONS
@@ -259,14 +273,14 @@ This statement scopes the public allow strictly to the three dashboard endpoints
 
 ## Phase 9 — Ongoing Operations
 
-| Concern | How it's handled |
-|---------|-----------------|
-| **New deployments** | Push to `main` → GitHub Actions → Amplify auto-deploys |
-| **Environment variable changes** | Update in Amplify console → manually trigger a new build |
-| **PR previews** | Re-enable `.github/workflows/ci_preview.yml.disabled` when ready; Amplify will create branch-specific preview URLs |
-| **Rollback** | Amplify console → select previous deployment → "Redeploy this version" |
-| **Certificate renewal** | ACM auto-renews; no manual action needed as long as the CNAME validation record stays in DNS |
-| **Access control** | Amplify supports basic auth password protection per-branch — set under *Branch settings → Access control* |
+| Concern                          | How it's handled                                                                                                   |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **New deployments**              | Push to `main` → GitHub Actions → Amplify auto-deploys                                                             |
+| **Environment variable changes** | Update in Amplify console → manually trigger a new build                                                           |
+| **PR previews**                  | Re-enable `.github/workflows/ci_preview.yml.disabled` when ready; Amplify will create branch-specific preview URLs |
+| **Rollback**                     | Amplify console → select previous deployment → "Redeploy this version"                                             |
+| **Certificate renewal**          | ACM auto-renews; no manual action needed as long as the CNAME validation record stays in DNS                       |
+| **Access control**               | Amplify supports basic auth password protection per-branch — set under _Branch settings → Access control_          |
 
 ---
 
