@@ -31,18 +31,18 @@ export type PaymentMethod =
  * Comments show the label you specified in the Acceptance Criteria.
  */
 export type Transaction = {
-  agencyTrackingId: string
-  paygovTrackingId?: string | null
-  feeName: string
-  feeId: string
-  feeAmount: number
-  clientName: string
-  transactionReferenceId: string
-  paymentStatus: PaymentStatus
-  transactionStatus?: TransactionStatus
-  paygovToken?: string | null
-  paymentMethod: PaymentMethod
-  lastUpdatedAt: string
-  createdAt: string
-  metadata?: Record<string, string> | null
-}
+  agencyTrackingId: string;
+  paygovTrackingId?: string | null;
+  feeName: string;
+  feeId: string;
+  transactionAmount: number;
+  clientName: string;
+  transactionReferenceId: string;
+  paymentStatus: PaymentStatus;
+  transactionStatus?: TransactionStatus;
+  paygovToken?: string | null;
+  paymentMethod: PaymentMethod;
+  lastUpdatedAt: string;
+  createdAt: string;
+  metadata?: Record<string, string> | null;
+};

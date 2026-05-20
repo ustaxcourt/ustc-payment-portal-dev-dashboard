@@ -85,7 +85,7 @@ export default function TransactionsTable({ rows, loading, status, error }: Tran
       { field: 'feeId', headerName: 'Fee Identifier', flex: 1, minWidth: 150 },
 
       {
-        field: 'feeAmount',
+        field: 'transactionAmount',
         headerName: 'Amount',
         flex: 0.6,
         minWidth: 110,
